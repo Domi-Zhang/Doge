@@ -205,26 +205,30 @@ namespace Doge
 
         private void lv_copy_column(object sender, RoutedEventArgs e)
         {
-            var table = ((ListView)sender).ItemsSource;
-            string selectField = null;
-            if (e.OriginalSource is GridViewColumnHeader)
+            try
             {
-                GridViewColumn clickedColumn = (e.OriginalSource as GridViewColumnHeader).Column;
-                if (clickedColumn != null && clickedColumn.DisplayMemberBinding is Binding)
+                var table = ((ListView)sender).ItemsSource;
+                string selectField = null;
+                if (e.OriginalSource is GridViewColumnHeader)
                 {
-                    selectField = ((Binding)clickedColumn.DisplayMemberBinding).Path.Path;
+                    GridViewColumn clickedColumn = (e.OriginalSource as GridViewColumnHeader).Column;
+                    if (clickedColumn != null && clickedColumn.DisplayMemberBinding is Binding)
+                    {
+                        selectField = ((Binding)clickedColumn.DisplayMemberBinding).Path.Path;
+                    }
                 }
-            }
 
-            if (selectField != null)
-            {
                 StringBuilder copyContent = new StringBuilder();
                 foreach (Object row in table)
                 {
                     Object value = row.GetType().GetProperty(selectField).GetValue(row, null);
                     copyContent.AppendLine(value != null ? value.ToString() : "");
                 }
-                Clipboard.SetText(copyContent.ToString());
+                Clipboard.SetDataObject(copyContent.ToString());
+            }
+            catch (Exception ex) 
+            {
+                Alert("错误", "复制内容失败：" + ex.ToString());
             }
         }
 
